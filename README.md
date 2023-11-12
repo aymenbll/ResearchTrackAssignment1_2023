@@ -1,77 +1,43 @@
-Python Robotics Simulator
-================================
+# ResearchTrackAssignment1_2023
 
-This is a simple, portable robot simulator developed by [Student Robotics](https://studentrobotics.org).
-Some of the arenas and the exercises have been modified for the Research Track I course
+# Robot Token Collection Algorithm
 
-Installing and running
-----------------------
+This Python code controls a robot to collect tokens placed in a space. It utilizes a series of functions to locate, grab, and organize the tokens.
 
-The simulator requires a Python 2.7 installation, the [pygame](http://pygame.org/) library, [PyPyBox2D](https://pypi.python.org/pypi/pypybox2d/2.1-r331), and [PyYAML](https://pypi.python.org/pypi/PyYAML/).
+## Functions
 
-Once the dependencies are installed, simply run the `test.py` script to test out the simulator.
+- **`find_token()`**
+  - Finds the closest available token.
+  - Returns the distance and orientation of the token relative to the robot.
 
+- **`find_reference_token()`**
+  - Identifies the initial reference token, commencing the token collection process.
 
-Robot API
----------
+- **`Token_grabber(rot_y, dist, code_of_token)`**
+  - Uses distance and orientation data to navigate and grab tokens.
+  - Updates token information and adds the code to the list of collected tokens.
 
-The API for controlling a simulated robot is designed to be as similar as possible to the [SR API][sr-api].
+- **`find_previous_token()`**
+  - Locates the token previously grabbed by the robot.
+  - Returns the distance and orientation of the identified token.
 
-### Motors ###
+- **`go_to_previous_and_release(rot_y, dist, code_of_token)`**
+  - Navigates to the previously collected token and releases it in a specific location.
 
-The simulated robot has two motors configured for skid steering, connected to a two-output [Motor Board](https://studentrobotics.org/docs/kit/motor_board). The left motor is connected to output `0` and the right motor to output `1`.
+- **`drive(speed, seconds)`** & **`turn(speed, seconds)`**
+  - Functions for controlling the robot's linear and angular velocity.
 
-The Motor Board API is identical to [that of the SR API](https://studentrobotics.org/docs/programming/sr/motors/), except that motor boards cannot be addressed by serial number. So, to turn on the spot at one quarter of full power, one might write the following:
+- **`sign(a)`**
+  - Returns the sign of a value (`-1` for negative values, `1` otherwise).
 
-```python
-R.motors[0].m0.power = 25
-R.motors[0].m1.power = -25
-```
+## Execution
 
-### The Grabber ###
+The `main()` function orchestrates the token collection process:
+- Initiates by finding the first reference token.
+- Continuously searches and collects tokens until the desired number of tokens is obtained.
+- Moves back to previously collected tokens and releases them in designated positions.
+- Completes the token collection mission upon reaching the set token count.
 
-The robot is equipped with a grabber, capable of picking up a token which is in front of the robot and within 0.4 metres of the robot's centre. To pick up a token, call the `R.grab` method:
+This code is intended for educational purposes and can be used to understand the basics of robot control and token collection algorithms.
 
-```python
-success = R.grab()
-```
-
-The `R.grab` function returns `True` if a token was successfully picked up, or `False` otherwise. If the robot is already holding a token, it will throw an `AlreadyHoldingSomethingException`.
-
-To drop the token, call the `R.release` method.
-
-Cable-tie flails are not implemented.
-
-### Vision ###
-
-To help the robot find tokens and navigate, each token has markers stuck to it, as does each wall. The `R.see` method returns a list of all the markers the robot can see, as `Marker` objects. The robot can only see markers which it is facing towards.
-
-Each `Marker` object has the following attributes:
-
-* `info`: a `MarkerInfo` object describing the marker itself. Has the following attributes:
-  * `code`: the numeric code of the marker.
-  * `marker_type`: the type of object the marker is attached to (either `MARKER_TOKEN_GOLD`, `MARKER_TOKEN_SILVER` or `MARKER_ARENA`).
-  * `offset`: offset of the numeric code of the marker from the lowest numbered marker of its type. For example, token number 3 has the code 43, but offset 3.
-  * `size`: the size that the marker would be in the real game, for compatibility with the SR API.
-* `centre`: the location of the marker in polar coordinates, as a `PolarCoord` object. Has the following attributes:
-  * `length`: the distance from the centre of the robot to the object (in metres).
-  * `rot_y`: rotation about the Y axis in degrees.
-* `dist`: an alias for `centre.length`
-* `res`: the value of the `res` parameter of `R.see`, for compatibility with the SR API.
-* `rot_y`: an alias for `centre.rot_y`
-* `timestamp`: the time at which the marker was seen (when `R.see` was called).
-
-For example, the following code lists all of the markers the robot can see:
-
-```python
-markers = R.see()
-print "I can see", len(markers), "markers:"
-
-for m in markers:
-    if m.info.marker_type in (MARKER_TOKEN_GOLD, MARKER_TOKEN_SILVER):
-        print " - Token {0} is {1} metres away".format( m.info.offset, m.dist )
-    elif m.info.marker_type == MARKER_ARENA:
-        print " - Arena marker {0} is {1} metres away".format( m.info.offset, m.dist )
-```
-
-[sr-api]: https://studentrobotics.org/docs/programming/sr/
+Please refer to the source code for detailed implementation and usage instructions.
